@@ -15,7 +15,7 @@ RUN pip install --upgrade pip && \
 COPY . .
 
 # Set env variable for model path (adjust if stored elsewhere)
-ENV MODEL_PATH=best11.pt
+ENV MODEL_PATH=/app/best11.pt
 
 # Expose the FastAPI port
 EXPOSE 8000
