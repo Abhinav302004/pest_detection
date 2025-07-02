@@ -1,18 +1,24 @@
-# Use a base image with PyTorch preinstalled to reduce size and simplify setup
+# Use a PyTorch base image (with CUDA if needed)
 FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
 
-# Set the working directory to root of copied repo
+# Set working directory in container
 WORKDIR /app
 
-# Copy all contents from current repo (host) into the container
+# Copy only requirements first to leverage Docker cache
+COPY requirements.txt .
+
+# Upgrade pip & install dependencies early
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy rest of the app files (code, model, etc.)
 COPY . .
 
-# Install dependencies
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+# Set env variable for model path (adjust if stored elsewhere)
+ENV MODEL_PATH=best11.pt
 
-# Expose port FastAPI runs on
+# Expose the FastAPI port
 EXPOSE 8000
 
-# Run the FastAPI app
+# Run the app
 CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
